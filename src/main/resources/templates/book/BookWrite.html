@@ -1,0 +1,40 @@
+  <!DOCTYPE html>
+  <html xmlns:th="http://www.thymeleaf.org">
+  <head>
+      <meta charset="UTF-8">
+      <title>도서 관리</title>
+      <link rel="stylesheet" th:href="@{/css/book.css}" />
+  </head>
+    <body>
+        <div class="container">
+            <h2>도서 등록</h2>
+            <!-- form 태그의 내용을 요청 본문을 통해 post 방식으로 전달함 -->
+            <form id="frm" method="post" action="/book/insertBook.do" enctype="multipart/form-data">
+                <table class="book_detail">
+                    <tr>
+                        <td>제목</td>
+                        <td><input id="title" name="title"></td>
+                        <td>저자</td>
+                        <td><input id="author" name="author"/></td>
+                    </tr>
+                    <tr>
+                   		<td>출판사</td>
+                        <td><input id="publisher" name="publisher"/></td>
+                        <td>출판일</td>
+                        <td><input id="publishedDate" name="publishedDate"/></td>
+           			</tr>
+           			<tr>
+                        <td>ISBN</td>
+                        <td><input type="text" id="isbn" name="isbn"/></td>
+           			</tr>
+                    <tr>
+                    	<td>책 소개</td>
+                      	<td colspan="3"><textarea id="description" name="description"></textarea></td>
+                    </tr>
+                </table>
+                <input type="file" id="files" name="files" multiple="multiple" />
+                <input type="submit" id="submit" value="등록" class="btn" />
+            </form>
+        </div>
+    </body>
+  </html>

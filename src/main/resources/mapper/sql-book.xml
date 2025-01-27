@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+ <mapper namespace="book.mapper.BookMapper">
+ 	<select id="selectBookList" resultType="book.dto.BookDto">
+ 		select book_id, title, author, publisher, date_format(published_date, '%Y/%m/%d') as published_date
+ 			from books
+ 			where deleted_yn = 'N'
+ 			order by book_id desc
+ 	</select>
+ 	
+ 	<!-- 도서 추가 등록 -->
+    <insert id="insertBook" parameterType="book.dto.BookDto"
+    		useGeneratedKeys="true" keyProperty="bookId">
+        insert into books(title, author, publisher, published_date, isbn, description, created_at)
+        values (#{title}, #{author}, #{publisher}, #{publishedDate}, #{isbn}, #{description}, now())
+    </insert>
+    
+    <select id="selectBookDetail" parameterType="int" resultType="book.dto.BookDto">
+        select book_id, title, author, publisher, date_format(published_date, '%Y/%m/%d') as published_date,
+        		isbn, description, date_format(created_at, '%Y/%m/%d') as created_at, date_format(updated_at, '%Y/%m/%d') as updated_at
+ 			from books
+ 		where deleted_yn = 'N' and book_id = #{bookId}
+    </select>
+    
+    <!-- 수정 -->
+    <update id="updateBook" parameterType="book.dto.BookDto">
+        update books
+           set title = #{title} 
+           	 , author = #{author}
+           	 , publisher = #{publisher}
+           	 , published_date = #{publishedDate}
+           	 , description = #{description}
+           	 , updated_at = now()
+         where book_id = #{bookId}  
+    </update>
+
+    
+    <!-- 삭제 : 실제 데이터를 삭제하지 않고, deleted_yn 값만 변경 -->
+    <delete id="deleteBook" parameterType="book.dto.BookDto">
+        update books
+           set deleted_yn = 'Y' 
+             , updated_at = now()
+         where book_id = #{bookId}  
+    </delete>
+    
+    <!-- DB에 파일 저장 -->
+    <insert id="insertBookImageList" parameterType="book.dto.BookDto">
+    	insert into book_images
+    		(book_id, original_file_name, stored_file_path, file_size, created_at)
+    	values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.bookId}, #{item.originalFileName}, #{item.storedFilePath}, #{item.fileSize}, now())
+        </foreach>
+    </insert>
+    
+	<!-- 업로드 파일 목록 출력 -->
+	<select id="selectBookImageList" parameterType="int" resultType="book.dto.BookImageDto">
+        select image_id, book_id, original_file_name, format(round(file_size/1024), 0) as file_size
+        from book_images
+        where book_id = #{bookId} and deleted_yn = 'N'
+    </select>
+    
+    <!-- 파일 다운로드 -->
+    <select id="selectBookImageInfo" parameterType="map" resultType="book.dto.BookImageDto">
+        select original_file_name, stored_file_path, file_size
+          from book_images
+         where image_id = #{imageId} and book_id = #{bookId} and deleted_yn = 'N'
+    </select>
+    
+ </mapper>
